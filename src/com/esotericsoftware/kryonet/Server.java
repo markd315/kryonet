@@ -58,6 +58,7 @@ public class Server implements EndPoint {
 	private Object updateLock = new Object();
 	private Thread updateThread;
 	private ServerDiscoveryHandler discoveryHandler;
+    private boolean hardy = false;
 
 	private Listener dispatchListener = new Listener() {
 		public void connected (Connection connection) {
@@ -86,7 +87,7 @@ public class Server implements EndPoint {
 		}
 	};
 
-	/** Creates a Server with a write buffer size of 16384 and an object buffer size of 2048. */
+    /** Creates a Server with a write buffer size of 16384 and an object buffer size of 2048. */
 	public Server () {
 		this(16384, 2048);
 	}
@@ -127,6 +128,10 @@ public class Server implements EndPoint {
 	public void setDiscoveryHandler (ServerDiscoveryHandler newDiscoveryHandler) {
 		discoveryHandler = newDiscoveryHandler;
 	}
+
+    public void setHardy(boolean hardiness){
+        this.hardy = hardiness;
+    }
 
 	public Serialization getSerialization () {
 		return serialization;
@@ -390,7 +395,9 @@ public class Server implements EndPoint {
 				update(250);
 			} catch (IOException ex) {
 				if (ERROR) error("kryonet", "Error updating server connections.", ex);
-				close();
+                if(!this.hardy){
+                    close();
+                }
 			}
 		}
 		if (TRACE) trace("kryonet", "Server thread stopped.");

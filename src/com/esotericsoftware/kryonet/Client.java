@@ -70,6 +70,7 @@ public class Client extends Connection implements EndPoint {
 	private int connectUdpPort;
 	private boolean isClosed;
 	private ClientDiscoveryHandler discoveryHandler;
+    private boolean hardy = false;
 
 	/** Creates a Client with a write buffer size of 8192 and an object buffer size of 2048. */
 	public Client () {
@@ -114,6 +115,10 @@ public class Client extends Connection implements EndPoint {
 	public void setDiscoveryHandler (ClientDiscoveryHandler newDiscoveryHandler) {
 		discoveryHandler = newDiscoveryHandler;
 	}
+
+	public void setHardy(boolean hardiness){
+	    this.hardy = hardiness;
+    }
 
 	public Serialization getSerialization () {
 		return serialization;
@@ -366,7 +371,9 @@ public class Client extends Connection implements EndPoint {
 					else
 						debug("kryonet", "Unable to update connection: " + ex.getMessage());
 				}
-				close();
+				if(!this.hardy){
+				    close();
+                }
 			} catch (KryoNetException ex) {
 				lastProtocolError = ex;
 				if (ERROR) {
@@ -375,8 +382,9 @@ public class Client extends Connection implements EndPoint {
 					else
 						error("kryonet", "Error updating connection.", ex);
 				}
-				close();
-				throw ex;
+                if(!this.hardy){
+                    close();
+                }
 			}
 		}
 		if (TRACE) trace("kryonet", "Client thread stopped.");
